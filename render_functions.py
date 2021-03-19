@@ -1,6 +1,11 @@
 import tcod as libtcod
 from enum import Enum
 
+from game_states import GameStates
+from menus import inventory_menu
+
+INVENTORY_WIDTH = 50
+
 class RenderOrder(Enum):
     CORPSE = 1
     ITEM = 2
@@ -32,7 +37,7 @@ def render_bar(panel, x, y, total_width, name, value, maximum, bar_color, back_c
                              '{0}: {1}/{2}'.format(name, value, maximum))
     
 def render_all(con, panel, entities, player, screen_width, screen_height, game_map, fov_map, fov_recompute,
-               message_log, bar_width, panel_height, panel_y, mouse, colors):
+               message_log, bar_width, panel_height, panel_y, mouse, colors, game_state):
     # Draw all tiles
     if fov_recompute:
         for y in range(game_map.height):
@@ -81,6 +86,10 @@ def render_all(con, panel, entities, player, screen_width, screen_height, game_m
     libtcod.console_print_ex(panel, 1, 0, libtcod.BKGND_NONE, libtcod.LEFT, get_names_on_mouse_hover(mouse, game_map, fov_map))
     
     libtcod.console_blit(panel, 0, 0, screen_width, panel_height, 0, 0, panel_y)
+    
+    # Display inventory menu
+    if game_state == GameStates.SHOW_INVENTORY:
+        inventory_menu(con, 'Press the key next to an item to use it, or Esc to cancel.\n', player.inventory, INVENTORY_WIDTH, screen_width, screen_height)
     
 def clear_all(con, entities):
     # Clear all entities

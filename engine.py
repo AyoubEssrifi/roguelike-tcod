@@ -2,7 +2,7 @@ import tcod as libtcod
 import os
 import sys
 
-from input_handler import handle_key
+from input_handler import handle_keys
 from entity import Entity
 from render_functions import render_all, clear_all, RenderOrder
 from map_objects.game_map import GameMap
@@ -72,6 +72,7 @@ def main():
     
     # Game State
     game_state = GameStates.PLAYERS_TURN
+    previous_game_state = game_state
     
     # Console init
     libtcod.console_set_custom_font(font_file, libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
@@ -95,20 +96,24 @@ def main():
             recompute_fov(fov_map, player.x, player.y, fov_algorithm, fov_radius, fov_light_walls)
             
         render_all(con, panel, entities, player, screen_width, screen_height, game_map, fov_map, fov_recompute,
-                   message_log, bar_width, panel_height, panel_y, mouse, colors)
+                   message_log, bar_width, panel_height, panel_y, mouse, colors, game_state)
+        
         fov_recompute = False
         libtcod.console_flush()
         clear_all(con, entities)
 
-        action = handle_key(key)
+        action = handle_keys(key, game_state)
         move = action.get("move")
         pickup = action.get('pickup')
+        show_inventory = action.get('show_inventory')
+        inventory_index = action.get("inventory_index")
         fullscreen = action.get("fullscreen")
         exit_game = action.get("exit")
         
         # Managing player's turn 
         player_turn_results = []
         
+        # Handling player movement and fighting
         if move and game_state == GameStates.PLAYERS_TURN:
             dx, dy = move
             if not game_map.is_blocked(player.x + dx, player.y + dy):
@@ -128,6 +133,7 @@ def main():
                 
                 game_state = GameStates.ENEMY_TURN
         
+        # Handling picking up items
         elif pickup and game_state == GameStates.PLAYERS_TURN:
             entities_in_tile = game_map.get_entities(player.x, player.y)
             for entity in entities_in_tile:
@@ -139,6 +145,7 @@ def main():
                     message_log.add_message(Message('There is nothing to pick up here !', libtcod.yellow))
                 break
         
+        # Handling player turn results
         for result in player_turn_results:
             message = result.get('message')
             dead_entity = result.get('dead')
@@ -192,11 +199,23 @@ def main():
             else:     
                 game_state = GameStates.PLAYERS_TURN
         
+        # Handling inventory
+        if show_inventory:
+            previous_game_state = game_state
+            game_state = GameStates.SHOW_INVENTORY
+        
+        if inventory_index and previous_game_state != GameStates.PLAYER_DEAD and inventory_index < len(player.inventory.items):
+            item = player.inventory.items[inventory_index]
+            print(item)
+            
         if fullscreen:
             libtcod.console_set_fullscreen(fullscreen)
             
         if exit_game:
-            return True
+            if game_state == GameStates.SHOW_INVENTORY:
+                game_state = previous_game_state
+            else:
+                return True
 
 
 if __name__ == "__main__":

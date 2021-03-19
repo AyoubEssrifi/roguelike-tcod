@@ -28,7 +28,10 @@ Latest commit 8418cca 7 minutes ago
  History
  1 contributor
 129 lines (105 sloc)  1.76 KB
-  
+
+# Virtual env
+roguelike-venv/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

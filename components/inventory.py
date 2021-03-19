@@ -1,3 +1,4 @@
+from __future__ import annotations
 import tcod as libtcod
 
 from game_messages import Message
@@ -7,7 +8,7 @@ class Inventory:
         self.capacity = 26
         self.items = []
     
-    def add_item(self, item):
+    def add_item(self, item: Entity):
         results = []
         
         if len(self.items) >= self.capacity:
@@ -19,5 +20,30 @@ class Inventory:
                             'message': Message('You pick up the {0}'.format(item.name), libtcod.yellow)})
             
             self.items.append(item)
+        
+        return results
+    
+    def remove_item(self, item: Entity):
+        self.items.remove(item)
+        
+    def use(self, item_entity: Entity, **kwargs):
+        results = []
+        
+        item_component = item_entity.item
+        
+        if item_component.use_function:
+            # Merge the kwargs of the item component and kwargs of this function
+            kwargs = {**item_component.function_kwargs, **kwargs}
+            
+            item_use_results = item_component.use_function(self.owner, **kwargs)
+            
+            for item_use_result in item_use_results:
+                if item_use_result.get('consumed'):
+                    self.remove_item(item_entity)
+            
+            results.extend(item_use_results)
+            
+        else:
+            results.append({'message': Message('The {0} cannot be used.'.format(item_entity.name))})
         
         return results

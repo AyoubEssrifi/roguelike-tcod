@@ -10,6 +10,7 @@ from components.fighter import Fighter
 from components.ai import BasicMonster
 from components.item import Item
 from render_functions import RenderOrder
+from item_functions import heal
 
 
 
@@ -135,7 +136,7 @@ class GameMap:
             y = randint(room.y1 + 1, room.y2 - 1)
             
             if len(self.get_entities(x, y)) == 0:
-                item_component = Item()
+                item_component = Item(use_function=heal, amount=4)
                 item = Entity(x, y, 'Healing Potion', '!', libtcod.violet, item=item_component, render_order=RenderOrder.ITEM)
                 
                 # Add item as an entity property of the tile

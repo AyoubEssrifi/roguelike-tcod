@@ -144,12 +144,22 @@ def main():
                 else:
                     message_log.add_message(Message('There is nothing to pick up here !', libtcod.yellow))
                 break
-        
+            
+        # Handling inventory
+        if show_inventory:
+            previous_game_state = game_state
+            game_state = GameStates.SHOW_INVENTORY
+            
+        if inventory_index is not None and previous_game_state != GameStates.PLAYER_DEAD and inventory_index < len(player.inventory.items):
+            item = player.inventory.items[inventory_index]
+            player_turn_results.extend(player.inventory.use(item))
+            
         # Handling player turn results
         for result in player_turn_results:
             message = result.get('message')
             dead_entity = result.get('dead')
             item_added = result.get('item_added')
+            item_consumed = result.get("consumed")
             
             if message:
                 message_log.add_message(message)
@@ -165,6 +175,9 @@ def main():
             if item_added:
                 entities.remove(item_added)
                 
+                game_state = GameStates.ENEMY_TURN
+            
+            if item_consumed:
                 game_state = GameStates.ENEMY_TURN
                 
             
@@ -199,14 +212,6 @@ def main():
             else:     
                 game_state = GameStates.PLAYERS_TURN
         
-        # Handling inventory
-        if show_inventory:
-            previous_game_state = game_state
-            game_state = GameStates.SHOW_INVENTORY
-        
-        if inventory_index and previous_game_state != GameStates.PLAYER_DEAD and inventory_index < len(player.inventory.items):
-            item = player.inventory.items[inventory_index]
-            print(item)
             
         if fullscreen:
             libtcod.console_set_fullscreen(fullscreen)

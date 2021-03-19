@@ -5,10 +5,13 @@ from game_states import GameStates
 def handle_keys(key, game_state):
     if game_state == GameStates.PLAYERS_TURN:
         return handle_player_turn_keys(key)
+    
     elif game_state == GameStates.PLAYER_DEAD:
         return handle_player_dead_keys(key)
+    
     elif game_state == GameStates.SHOW_INVENTORY:
         return handle_inventory_keys(key)
+    
     return {}
 
 def handle_inventory_keys(key):
@@ -25,6 +28,7 @@ def handle_inventory_keys(key):
         return {'exit': True}
 
     return {}
+
 def handle_player_dead_keys(key):
     key_char = chr(key.c)
 

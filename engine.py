@@ -106,6 +106,7 @@ def main():
         move = action.get("move")
         pickup = action.get('pickup')
         show_inventory = action.get('show_inventory')
+        drop_inventory = action.get('drop_inventory')
         inventory_index = action.get("inventory_index")
         fullscreen = action.get("fullscreen")
         exit_game = action.get("exit")
@@ -125,7 +126,7 @@ def main():
                     for entity in entities_in_tile:
                         if entity.fighter:
                             target = entity
-                    # print(target.name)
+                            
                     # Avoid attacking items xD
                     if not target.item:
                         player_attack_results = player.fighter.attack(target)
@@ -136,14 +137,17 @@ def main():
         # Handling picking up items
         elif pickup and game_state == GameStates.PLAYERS_TURN:
             entities_in_tile = game_map.get_entities(player.x, player.y)
+            picked = False
             for entity in entities_in_tile:
                 if entity.item:
                     item = entity
                     pickup_results = player.inventory.add_item(item)
                     player_turn_results.extend(pickup_results)
-                else:
-                    message_log.add_message(Message('There is nothing to pick up here !', libtcod.yellow))
-                break
+                    picked = True
+                    break
+            if not picked:
+                message_log.add_message(Message('There is nothing to pick up here !', libtcod.yellow))
+                
             
         # Handling inventory
         if show_inventory:
@@ -152,7 +156,14 @@ def main():
             
         if inventory_index is not None and previous_game_state != GameStates.PLAYER_DEAD and inventory_index < len(player.inventory.items):
             item = player.inventory.items[inventory_index]
-            player_turn_results.extend(player.inventory.use(item))
+            if game_state == GameStates.SHOW_INVENTORY:
+                player_turn_results.extend(player.inventory.use(item))
+            elif game_state == GameStates.DROP_INVENTORY:
+                player_turn_results.extend(player.inventory.drop_item(item))
+        
+        if drop_inventory:
+            previous_game_state = game_state
+            game_state = GameStates.DROP_INVENTORY
             
         # Handling player turn results
         for result in player_turn_results:
@@ -160,6 +171,7 @@ def main():
             dead_entity = result.get('dead')
             item_added = result.get('item_added')
             item_consumed = result.get("consumed")
+            item_dropped = result.get("item_dropped")
             
             if message:
                 message_log.add_message(message)
@@ -174,10 +186,16 @@ def main():
             
             if item_added:
                 entities.remove(item_added)
+                game_map.remove_entity(item_added.x, item_added.y, item_added)
                 
                 game_state = GameStates.ENEMY_TURN
             
             if item_consumed:
+                game_state = GameStates.ENEMY_TURN
+                
+            if item_dropped:
+                entities.append(item_dropped)
+                game_map.set_entity(item_dropped.x, item_dropped.y ,item_dropped)
                 game_state = GameStates.ENEMY_TURN
                 
             
@@ -217,7 +235,7 @@ def main():
             libtcod.console_set_fullscreen(fullscreen)
             
         if exit_game:
-            if game_state == GameStates.SHOW_INVENTORY:
+            if game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY):
                 game_state = previous_game_state
             else:
                 return True

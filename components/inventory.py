@@ -47,3 +47,15 @@ class Inventory:
             results.append({'message': Message('The {0} cannot be used.'.format(item_entity.name))})
         
         return results
+    
+    def drop_item(self, item: Entity):
+        results = []
+        
+        item.x = self.owner.x
+        item.y = self.owner.y
+        
+        self.remove_item(item)
+        results.append({'item_dropped': item, 
+                        'message': Message('You dropped the {0}'.format(item.name), libtcod.yellow)})
+        
+        return results

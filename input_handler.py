@@ -9,7 +9,7 @@ def handle_keys(key, game_state):
     elif game_state == GameStates.PLAYER_DEAD:
         return handle_player_dead_keys(key)
     
-    elif game_state == GameStates.SHOW_INVENTORY:
+    elif game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY):
         return handle_inventory_keys(key)
     
     return {}
@@ -72,6 +72,10 @@ def handle_player_turn_keys(key):
     # Open inventory
     elif key_char == 'i':
         return {'show_inventory': True}
+    
+    # Drop inventory
+    elif key_char == 'd':
+        return {'drop_inventory': True}
     
     # Toggle fulscreen: Alt + Enter
     if key.vk == libtcod.KEY_ENTER and key.lalt:

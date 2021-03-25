@@ -10,8 +10,8 @@ from components.fighter import Fighter
 from components.ai import BasicMonster
 from components.item import Item
 from render_functions import RenderOrder
-from item_functions import heal, cast_lightning
-
+from item_functions import heal, cast_lightning, cast_fireball
+from game_messages import Message
 
 
 class GameMap:
@@ -140,6 +140,10 @@ class GameMap:
                 if item_chance < 70:
                     item_component = Item(use_function=heal, amount=4)
                     item = Entity(x, y, 'Healing Potion', '!', libtcod.violet, item=item_component, render_order=RenderOrder.ITEM)
+                elif item_chance < 85:
+                    item_component = Item(use_function=cast_fireball, targeting=True, targeting_message=Message(
+                        'Left-click a target tile for the fireball, or right-click to cancel.', libtcod.light_cyan), damage=12, radius=3)
+                    item = Entity(x, y, 'Fireball Scroll', '#', libtcod.red, item=item_component, render_order=RenderOrder.ITEM)
                 else:
                     item_component = Item(use_function=cast_lightning, damage=20, maximum_range=5)
                     item = Entity(x, y, 'Lightning Scroll', '#', libtcod.yellow, item=item_component, render_order=RenderOrder.ITEM)

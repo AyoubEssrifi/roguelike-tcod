@@ -10,7 +10,7 @@ from components.fighter import Fighter
 from components.ai import BasicMonster
 from components.item import Item
 from render_functions import RenderOrder
-from item_functions import heal
+from item_functions import heal, cast_lightning
 
 
 
@@ -136,9 +136,13 @@ class GameMap:
             y = randint(room.y1 + 1, room.y2 - 1)
             
             if len(self.get_entities(x, y)) == 0:
-                item_component = Item(use_function=heal, amount=4)
-                item = Entity(x, y, 'Healing Potion', '!', libtcod.violet, item=item_component, render_order=RenderOrder.ITEM)
-                
+                item_chance = randint(0, 100)
+                if item_chance < 70:
+                    item_component = Item(use_function=heal, amount=4)
+                    item = Entity(x, y, 'Healing Potion', '!', libtcod.violet, item=item_component, render_order=RenderOrder.ITEM)
+                else:
+                    item_component = Item(use_function=cast_lightning, damage=20, maximum_range=5)
+                    item = Entity(x, y, 'Lightning Scroll', '#', libtcod.yellow, item=item_component, render_order=RenderOrder.ITEM)
                 # Add item as an entity property of the tile
                 self.set_entity(x, y, item)
                 

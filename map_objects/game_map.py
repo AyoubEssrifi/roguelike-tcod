@@ -10,7 +10,7 @@ from components.fighter import Fighter
 from components.ai import BasicMonster
 from components.item import Item
 from render_functions import RenderOrder
-from item_functions import heal, cast_lightning, cast_fireball
+from item_functions import heal, cast_lightning, cast_fireball, cast_confuse
 from game_messages import Message
 
 
@@ -144,9 +144,14 @@ class GameMap:
                     item_component = Item(use_function=cast_fireball, targeting=True, targeting_message=Message(
                         'Left-click a target tile for the fireball, or right-click to cancel.', libtcod.light_cyan), damage=12, radius=3)
                     item = Entity(x, y, 'Fireball Scroll', '#', libtcod.red, item=item_component, render_order=RenderOrder.ITEM)
+                elif item_chance < 90:
+                    item_component = Item(use_function=cast_confuse, targeting=True, targeting_message=Message(
+                        'Left-click an enemy to confuse it, or right-click to cancel.', libtcod.light_cyan), damage=12, radius=3)
+                    item = Entity(x, y, 'Confusion Scroll', '#', libtcod.light_pink, item=item_component, render_order=RenderOrder.ITEM)
                 else:
                     item_component = Item(use_function=cast_lightning, damage=20, maximum_range=5)
                     item = Entity(x, y, 'Lightning Scroll', '#', libtcod.yellow, item=item_component, render_order=RenderOrder.ITEM)
+                    
                 # Add item as an entity property of the tile
                 self.set_entity(x, y, item)
                 

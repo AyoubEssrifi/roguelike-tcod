@@ -48,7 +48,7 @@ def main():
     room_min_size = 6
     max_rooms = 30
     max_monsters_per_room = 3
-    max_items_per_room = 2
+    max_items_per_room = 5
     
     game_map = GameMap(map_width, map_height)
     game_map.make_map(room_min_size, room_max_size, max_rooms, max_monsters_per_room, max_items_per_room, 

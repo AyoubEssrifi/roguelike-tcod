@@ -150,10 +150,10 @@ class GameMap:
                 elif item_chance < 90:
                     item_component = Item(use_function=cast_confuse, targeting=True, targeting_message=Message(
                         'Left-click an enemy to confuse it, or right-click to cancel.', libtcod.light_cyan), damage=12, radius=3)
-                    item = Entity(x, y, 'Confusion Scroll', tiles['orc_tile'], libtcod.light_pink, item=item_component, render_order=RenderOrder.ITEM)
+                    item = Entity(x, y, 'Confusion Scroll', tiles['scroll_tile'], libtcod.light_pink, item=item_component, render_order=RenderOrder.ITEM)
                 else:
                     item_component = Item(use_function=cast_lightning, damage=20, maximum_range=5)
-                    item = Entity(x, y, 'Lightning Scroll', tiles['orc_tile'], libtcod.yellow, item=item_component, render_order=RenderOrder.ITEM)
+                    item = Entity(x, y, 'Lightning Scroll', tiles['scroll_tile'], libtcod.yellow, item=item_component, render_order=RenderOrder.ITEM)
                     
                 # Add item as an entity property of the tile
                 self.set_entity(x, y, item)

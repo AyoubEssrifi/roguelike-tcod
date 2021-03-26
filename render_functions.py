@@ -11,6 +11,16 @@ class RenderOrder(Enum):
     ITEM = 2
     ACTOR = 3
 
+def load_customfont():
+    # The index of the first custom tile in the file
+    a = 256
+ 
+    # The "y" is the row index, here we load the sixth row in the font file. 
+    # Increase the "6" to load any new rows from the file
+    for y in range(5,6):
+        libtcod.console_map_ascii_codes_to_font(a, 32, 0, y)
+        a += 32
+        
 def get_names_on_mouse_hover(mouse, game_map, fov_map):
     (x, y) = (mouse.cx, mouse.cy)
     
@@ -37,7 +47,7 @@ def render_bar(panel, x, y, total_width, name, value, maximum, bar_color, back_c
                              '{0}: {1}/{2}'.format(name, value, maximum))
     
 def render_all(con, panel, entities, player, screen_width, screen_height, game_map, fov_map, fov_recompute,
-               message_log, bar_width, panel_height, panel_y, mouse, colors, game_state):
+               message_log, bar_width, panel_height, panel_y, mouse, tiles, game_state):
     # Draw all tiles
     if fov_recompute:
         for y in range(game_map.height):
@@ -50,14 +60,15 @@ def render_all(con, panel, entities, player, screen_width, screen_height, game_m
                     game_map.tiles[x][y].explored = True
                     
                     if wall:
-                        libtcod.console_set_char_background(con, x, y, colors.get('light_wall'), libtcod.BKGND_SET)
+                        # libtcod.console_set_char_background(con, x, y, colors.get('light_wall'), libtcod.BKGND_SET)
+                        libtcod.console_put_char_ex(con, x, y, tiles['wall_tile'], libtcod.white, libtcod.black)
                     else:
-                        libtcod.console_set_char_background(con, x, y, colors.get('light_ground'), libtcod.BKGND_SET)
+                        libtcod.console_put_char_ex(con, x, y, tiles['floor_tile'], libtcod.white, libtcod.black)
                 elif explored:
                     if wall:
-                        libtcod.console_set_char_background(con, x, y, colors.get('dark_wall'), libtcod.BKGND_SET)
+                        libtcod.console_put_char_ex(con, x, y, tiles['wall_tile'], libtcod.grey, libtcod.black)
                     else:
-                        libtcod.console_set_char_background(con, x, y, colors.get('dark_ground'), libtcod.BKGND_SET)
+                        libtcod.console_put_char_ex(con, x, y, tiles['floor_tile'], libtcod.grey, libtcod.black)
                     
     # Draw all entities
     entities_in_render_order = sorted(entities, key=lambda x: x.render_order.value)
@@ -103,8 +114,8 @@ def clear_all(con, entities):
     
 def draw_entity(con, fov_map, entity):
     if libtcod.map_is_in_fov(fov_map, entity.x, entity.y):
-        libtcod.console_set_default_foreground(con, entity.color)
-        libtcod.console_put_char(con, entity.x, entity.y, entity.char, libtcod.BKGND_NONE)
+        # libtcod.console_set_default_foreground(con, entity.color)
+        libtcod.console_put_char_ex(con, entity.x, entity.y, entity.char, entity.color, libtcod.black)
         
 def clear_entity(con, entity):
     libtcod.console_put_char(con, entity.x, entity.y, ' ', libtcod.BKGND_NONE)

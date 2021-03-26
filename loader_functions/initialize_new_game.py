@@ -7,6 +7,7 @@ from components.inventory import Inventory
 from render_functions import RenderOrder
 from game_messages import MessageLog
 from game_states import GameStates
+from .get_tiles import get_tiles
 
 
 def get_constants():
@@ -75,12 +76,15 @@ def get_constants():
     return constants
 
 def get_game_variables(constants):
+    # Tiles
+    tiles = get_tiles()
+    
     # Components
     fighter_component = Fighter(hp=30, defense=2, power=5)
     inventory_component = Inventory(26)
     
     # Entities
-    player = Entity(int(constants['screen_width'] / 2) - 10, int(constants['screen_height'] / 2), "Player", "@", libtcod.white, 
+    player = Entity(int(constants['screen_width'] / 2) - 10, int(constants['screen_height'] / 2), "Player", tiles['player_tile'], libtcod.white, 
                     fighter=fighter_component, ai=None, inventory=inventory_component, render_order=RenderOrder.ACTOR)
     entities = [player]
     

@@ -12,6 +12,7 @@ from components.item import Item
 from render_functions import RenderOrder
 from item_functions import heal, cast_lightning, cast_fireball, cast_confuse
 from game_messages import Message
+from loader_functions.get_tiles import get_tiles
 
 
 class GameMap:
@@ -105,6 +106,8 @@ class GameMap:
                 num_rooms += 1     
     
     def place_entities(self, entities: List, room: Rect, max_monsters_per_room, max_items_per_room):
+        tiles = get_tiles()
+        
         number_of_monsters = randint(1, max_monsters_per_room)
         number_of_items = randint(1, max_items_per_room)
         
@@ -118,11 +121,11 @@ class GameMap:
                 if randint(0, 100) < 80:
                     fighter_component = Fighter(hp=10, defense=0, power=3)
                     ai_component = BasicMonster()
-                    monster = Entity(x, y, "Orc", "o", libtcod.dark_green, fighter_component, ai_component, render_order=RenderOrder.ACTOR)
+                    monster = Entity(x, y, "Orc", tiles['orc_tile'], libtcod.white, fighter_component, ai_component, render_order=RenderOrder.ACTOR)
                 else:
                     fighter_component = Fighter(hp=16, defense=1, power=4)
                     ai_component = BasicMonster()
-                    monster = Entity(x, y, "Troll", "T", libtcod.orange, fighter_component, ai_component, render_order=RenderOrder.ACTOR)
+                    monster = Entity(x, y, "Troll", tiles['troll_tile'], libtcod.white, fighter_component, ai_component, render_order=RenderOrder.ACTOR)
                 
                 # Add the monster as an entity property of the tile to check for blocking movement
                 # self.tiles[x][y].entity = monster
@@ -139,18 +142,18 @@ class GameMap:
                 item_chance = randint(0, 100)
                 if item_chance < 70:
                     item_component = Item(use_function=heal, amount=4)
-                    item = Entity(x, y, 'Healing Potion', '!', libtcod.violet, item=item_component, render_order=RenderOrder.ITEM)
+                    item = Entity(x, y, 'Healing Potion', tiles['healingpotion_tile'], libtcod.white, item=item_component, render_order=RenderOrder.ITEM)
                 elif item_chance < 85:
                     item_component = Item(use_function=cast_fireball, targeting=True, targeting_message=Message(
                         'Left-click a target tile for the fireball, or right-click to cancel.', libtcod.light_cyan), damage=12, radius=3)
-                    item = Entity(x, y, 'Fireball Scroll', '#', libtcod.red, item=item_component, render_order=RenderOrder.ITEM)
+                    item = Entity(x, y, 'Fireball Scroll', tiles['scroll_tile'], libtcod.red, item=item_component, render_order=RenderOrder.ITEM)
                 elif item_chance < 90:
                     item_component = Item(use_function=cast_confuse, targeting=True, targeting_message=Message(
                         'Left-click an enemy to confuse it, or right-click to cancel.', libtcod.light_cyan), damage=12, radius=3)
-                    item = Entity(x, y, 'Confusion Scroll', '#', libtcod.light_pink, item=item_component, render_order=RenderOrder.ITEM)
+                    item = Entity(x, y, 'Confusion Scroll', tiles['orc_tile'], libtcod.light_pink, item=item_component, render_order=RenderOrder.ITEM)
                 else:
                     item_component = Item(use_function=cast_lightning, damage=20, maximum_range=5)
-                    item = Entity(x, y, 'Lightning Scroll', '#', libtcod.yellow, item=item_component, render_order=RenderOrder.ITEM)
+                    item = Entity(x, y, 'Lightning Scroll', tiles['orc_tile'], libtcod.yellow, item=item_component, render_order=RenderOrder.ITEM)
                     
                 # Add item as an entity property of the tile
                 self.set_entity(x, y, item)

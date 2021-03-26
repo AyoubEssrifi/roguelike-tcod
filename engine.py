@@ -3,19 +3,24 @@ import os
 import sys
 
 from loader_functions.initialize_new_game import get_constants, get_game_variables
+from loader_functions.get_tiles import get_tiles
 from input_handler import handle_keys, handle_mouse
-from render_functions import render_all, clear_all
+from render_functions import render_all, clear_all, load_customfont
 from map_objects.fov_functions import initialize_fov, recompute_fov
 from game_states import GameStates
 from death_functions import kill_monster, kill_player
 from game_messages import Message
-
+        
 def main():
     # Initializing game
     constants = get_constants()
+    tiles = get_tiles()
     player, entities, game_map, message_log, game_state = get_game_variables(constants)
     
-    font_file = os.getcwd() + '/resources/arial10x10.png'
+    # Font and Tiles init
+    font_file = os.getcwd() + '/resources/TiledFont.png'
+    libtcod.console_set_custom_font(font_file, libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD, 32, 10)
+    load_customfont()
     
     # FOV init
     fov_recompute = True
@@ -25,9 +30,10 @@ def main():
     previous_game_state = game_state
     
     # Console init
-    libtcod.console_set_custom_font(font_file, libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
     root_con = libtcod.console_init_root(constants['screen_width'], constants['screen_height'], constants['window_title'], False)
     con = libtcod.console_new(constants['screen_width'], constants['screen_height'])
+    
+    # UI
     panel = libtcod.console_new(constants['screen_width'], constants['panel_height'])
     
     # Keyboard + Mouse vars
@@ -48,7 +54,7 @@ def main():
             
         render_all(con, panel, entities, player, constants['screen_width'], constants['screen_height'],
                    game_map, fov_map, fov_recompute, message_log, constants['bar_width'], 
-                   constants['panel_height'], constants['panel_y'], mouse, constants['colors'], game_state)
+                   constants['panel_height'], constants['panel_y'], mouse, tiles, game_state)
         
         fov_recompute = False
         libtcod.console_flush()

@@ -32,6 +32,9 @@ Latest commit 8418cca 7 minutes ago
 # Virtual env
 roguelike-venv/
 
+# Save file
+savedata.dat
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

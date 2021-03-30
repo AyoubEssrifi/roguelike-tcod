@@ -25,7 +25,7 @@ def menu(con, header, options, width, screen_width, screen_height):
         letter_index += 1
         
     x = int(screen_width / 2  - width / 2)
-    y = x = int(screen_height / 2  - height / 2)
+    y = int(screen_height / 2  - height / 2)
     libtcod.console_blit(window, 0, 0, width, height, 0, x, y, 1.0, 1.7)
 
 def inventory_menu(con, header, inventory, inventory_width, screen_width, screen_height):
@@ -35,3 +35,16 @@ def inventory_menu(con, header, inventory, inventory_width, screen_width, screen
         options = [item.name for item in inventory.items]
         
     menu(con, header, options, inventory_width, screen_width, screen_height)
+    
+def main_menu(con, screen_width , screen_height):
+    MAIN_MENU_WIDTH = 24
+    options = ['New Game', 'Load Game', 'Exit']
+    
+    libtcod.console_set_default_foreground(0, libtcod.light_yellow)
+    libtcod.console_print_ex(0, int(screen_width / 2), int(screen_height / 2) - 9, libtcod.BKGND_NONE, libtcod.CENTER, 'Roguelike Game')
+    libtcod.console_print_ex(0, int(screen_width / 2), int(screen_height / 2) - 8, libtcod.BKGND_NONE, libtcod.CENTER, 'By Ayoub Essrifi')
+    
+    menu(con, '', options, MAIN_MENU_WIDTH, screen_width, screen_height)
+
+def message_box(con, header, width, screen_width, screen_height):
+    menu(con, header, '', width, screen_width, screen_height)

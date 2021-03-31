@@ -122,6 +122,8 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         drop_inventory = action.get('drop_inventory')
         inventory_index = action.get("inventory_index")
         take_stairs = action.get("take_stairs")
+        level_up_stat = action.get("level_up_stat")
+        show_character_screen = action.get("show_character_screen")
         fullscreen = action.get("fullscreen")
         exit_game = action.get("exit")
         
@@ -202,12 +204,29 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                     break
             else:
                 message_log.add_message(Message('There are no stairs here.', libtcod.yellow))
-                    
-            
+        
+        # Handling stats increase when leveling up         
+        if level_up_stat:
+            if level_up_stat == "hp":
+                player.fighter.max_hp += 20
+                player.fighter.hp = player.fighter.max_hp
+            elif level_up_stat == "str":
+                player.fighter.power += 1
+            elif level_up_stat == "def":
+                player.fighter.defense += 1
+                
+            game_state = previous_game_state
+        
+        # Handling character screen
+        if show_character_screen:
+            previous_game_state = game_state
+            game_state = GameStates.CHARACTER_SCREEN
+    
         # Handling player turn results
         for result in player_turn_results:
             message = result.get('message')
             dead_entity = result.get('dead')
+            xp = result.get('xp')
             item_added = result.get('item_added')
             item_consumed = result.get("consumed")
             item_dropped = result.get("item_dropped")
@@ -225,6 +244,16 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                     
                 message_log.add_message(message)
             
+            if xp:
+                leveled_up = player.level.add_xp(xp)
+                if leveled_up:
+                    message_log.add_message(Message(
+                        'Your battle skills grow stronger! You reached level {0}'.format(
+                        player.level.current_level) + '!', libtcod.yellow))
+                    
+                    previous_game_state = game_state
+                    game_state = GameStates.LEVEL_UP
+                
             if item_added:
                 entities.remove(item_added)
                 game_map.remove_entity(item_added.x, item_added.y, item_added)
@@ -289,7 +318,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
             libtcod.console_set_fullscreen(fullscreen)
             
         if exit_game:
-            if game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY):
+            if game_state in (GameStates.SHOW_INVENTORY, GameStates.DROP_INVENTORY, GameStates.CHARACTER_SCREEN):
                 game_state = previous_game_state
             elif game_state == GameStates.TARGETING:
                 player_turn_results.append({'targeting_cancelled': True})

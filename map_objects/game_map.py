@@ -130,11 +130,11 @@ class GameMap:
             if len(self.get_entities(x, y)) == 0:
                 # Probability of 80% to spawn Orc and 20% for Troll
                 if randint(0, 100) < 80:
-                    fighter_component = Fighter(hp=10, defense=0, power=3)
+                    fighter_component = Fighter(hp=10, defense=0, power=3, xp=35)
                     ai_component = BasicMonster()
                     monster = Entity(x, y, "Orc", "o", libtcod.dark_green, fighter_component, ai_component, render_order=RenderOrder.ACTOR)
                 else:
-                    fighter_component = Fighter(hp=16, defense=1, power=4)
+                    fighter_component = Fighter(hp=16, defense=1, power=4, xp=100)
                     ai_component = BasicMonster()
                     monster = Entity(x, y, "Troll", "T", libtcod.orange, fighter_component, ai_component, render_order=RenderOrder.ACTOR)
                 

@@ -27,6 +27,12 @@ def handle_keys(key, game_state):
     elif game_state == GameStates.TARGETING:
         return handle_targeting_keys(key)
     
+    elif game_state == GameStates.LEVEL_UP:
+        return handle_level_up_menu(key)
+    
+    elif game_state == GameStates.CHARACTER_SCREEN:
+        return handle_character_screen(key)
+    
     return {}
 
 def handle_mouse(mouse):
@@ -37,7 +43,26 @@ def handle_mouse(mouse):
         return {'right_click': (x, y)}
     
     return {}
-    
+
+def handle_character_screen(key):
+    if key.vk == libtcod.KEY_ESCAPE:
+        return {'exit': True}
+
+    return {}
+
+def handle_level_up_menu(key):
+    if key:
+        key_char = chr(key.c)
+
+        if key_char == 'a':
+            return {'level_up_stat': 'hp'}
+        elif key_char == 'b':
+            return {'level_up_stat': 'str'}
+        elif key_char == 'c':
+            return {'level_up_stat': 'def'}
+
+    return {}
+ 
 def handle_targeting_keys(key):
     if key.vk == libtcod.KEY_ESCAPE:
         return {'exit': True}
@@ -109,6 +134,10 @@ def handle_player_turn_keys(key):
     # Enter stairs
     elif key.vk == libtcod.KEY_ENTER:
         return {'take_stairs': True}
+    
+    # Display character screen
+    elif key_char == 'c':
+        return {'show_character_screen': True}
     
     # Toggle fulscreen: Alt + Enter
     if key.vk == libtcod.KEY_ENTER and key.lalt:

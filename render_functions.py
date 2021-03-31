@@ -2,7 +2,7 @@ import tcod as libtcod
 from enum import Enum
 
 from game_states import GameStates
-from menus import inventory_menu
+from menus import inventory_menu, level_up_menu, character_screen
 
 INVENTORY_WIDTH = 50
 
@@ -82,8 +82,12 @@ def render_all(con, panel, entities, player, screen_width, screen_height, game_m
     render_bar(panel, 1, 1, bar_width, 'HP', player.fighter.hp, player.fighter.max_hp,
                libtcod.green, libtcod.darker_red)
     
+    # Display XP bar
+    render_bar(panel, 1, 3, bar_width, 'XP', player.level.current_xp, player.level.experience_to_next_level,
+               libtcod.light_blue, libtcod.dark_blue)
+    
     # Display dungeon level
-    libtcod.console_print_ex(panel, 1, 3, libtcod.BKGND_NONE, libtcod.LEFT, 
+    libtcod.console_print_ex(panel, 1, 5, libtcod.BKGND_NONE, libtcod.LEFT, 
                              'Dungeon Level {0}'.format(game_map.dungeon_level))
     
     # Display names on mouse hover
@@ -100,6 +104,14 @@ def render_all(con, panel, entities, player, screen_width, screen_height, game_m
             inventory_title = 'Press the key next to an item to drop it, or Esc to cancel.\n'
             
         inventory_menu(con, inventory_title, player.inventory, INVENTORY_WIDTH, screen_width, screen_height)
+    
+    # Display level up menu
+    elif game_state == GameStates.LEVEL_UP:
+        level_up_menu(con, 'Level up! Choose a stat to raise:', player, 40, screen_width, screen_height)
+    
+    # Display character screen menu
+    elif game_state == GameStates.CHARACTER_SCREEN:
+        character_screen(player, 30, 10, screen_width, screen_height)
     
 def clear_all(con, entities):
     # Clear all entities

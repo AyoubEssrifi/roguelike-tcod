@@ -117,6 +117,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         mouse_action = handle_mouse(mouse)
         
         move = action.get("move")
+        wait = action.get("wait")
         pickup = action.get('pickup')
         show_inventory = action.get('show_inventory')
         drop_inventory = action.get('drop_inventory')
@@ -133,8 +134,12 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         # Managing player's turn 
         player_turn_results = []
         
+        # Handling player waiting
+        if wait:
+            game_state = GameStates.ENEMY_TURN
+            
         # Handling player movement and fighting
-        if move and game_state == GameStates.PLAYERS_TURN:
+        elif move and game_state == GameStates.PLAYERS_TURN:
             dx, dy = move
             if not game_map.is_blocked(player.x + dx, player.y + dy):
                 entities_in_tile = game_map.get_entities(player.x + dx, player.y + dy)

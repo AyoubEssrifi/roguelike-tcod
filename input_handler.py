@@ -119,6 +119,10 @@ def handle_player_turn_keys(key):
     elif key.vk == libtcod.KEY_KP3:
         return {'move': (1, 1)}
     
+    # Waiting
+    if key_char == 'f':
+        return {'wait': True}
+    
     # Pickup item
     if key_char == 'g':
         return {'pickup': True}

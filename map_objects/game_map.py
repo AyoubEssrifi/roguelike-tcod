@@ -9,15 +9,17 @@ from entity import Entity
 from components.fighter import Fighter
 from components.ai import BasicMonster
 from components.item import Item
+from components.stairs import Stairs
 from render_functions import RenderOrder
 from item_functions import heal, cast_lightning, cast_fireball, cast_confuse
 from game_messages import Message
 
 
 class GameMap:
-    def __init__(self, width, height):
+    def __init__(self, width, height, dungeon_level=1):
         self.width = width
         self.height = height
+        self.dungeon_level = dungeon_level
         self.tiles = self.initialize_tiles()
 
     def initialize_tiles(self):
@@ -61,6 +63,9 @@ class GameMap:
         rooms = []
         num_rooms = 0
         
+        center_of_last_room_x = None
+        center_of_last_room_y = None
+        
         for r in range(max_rooms):
             w = randint(room_min_size, room_max_size)
             h = randint(room_min_size, room_max_size)
@@ -77,6 +82,9 @@ class GameMap:
                 
                 # Center coordinates of new room, will be useful later
                 (new_x, new_y) = new_room.center()
+                
+                center_of_last_room_x = new_x
+                center_of_last_room_y = new_y
 
                 if num_rooms == 0:
                     # This is the first room, where the player starts at
@@ -102,7 +110,13 @@ class GameMap:
                 
                 self.place_entities(entities, new_room, max_monsters_per_room, max_items_per_room)
                 rooms.append(new_room)
-                num_rooms += 1     
+                num_rooms += 1   
+                
+        # Placing the stairs to next level
+        stairs_component = Stairs(self.dungeon_level + 1)
+        stairs = Entity(center_of_last_room_x, center_of_last_room_y, 'Stairs', '>', libtcod.white,
+                        stairs=stairs_component, render_order=RenderOrder.STAIRS)
+        entities.append(stairs)  
     
     def place_entities(self, entities: List, room: Rect, max_monsters_per_room, max_items_per_room):
         number_of_monsters = randint(1, max_monsters_per_room)
@@ -156,3 +170,18 @@ class GameMap:
                 self.set_entity(x, y, item)
                 
                 entities.append(item)
+    
+    def next_floor(self, player, constants, message_log):
+        self.dungeon_level += 1
+        entities = [player]
+        
+        self.tiles = self.initialize_tiles()
+        self.make_map(constants['room_min_size'], constants['room_max_size'], constants['max_rooms'],
+                      constants['max_monsters_per_room'], constants['max_items_per_room'], 
+                      constants['map_width'], constants['map_height'], player, entities)
+        
+        player.fighter.heal(player.fighter.max_hp // 2)
+        
+        message_log.add_message(Message('You take a moment to rest, and recover your strength.', libtcod.light_violet))
+        
+        return entities

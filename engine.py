@@ -121,6 +121,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         show_inventory = action.get('show_inventory')
         drop_inventory = action.get('drop_inventory')
         inventory_index = action.get("inventory_index")
+        take_stairs = action.get("take_stairs")
         fullscreen = action.get("fullscreen")
         exit_game = action.get("exit")
         
@@ -176,7 +177,11 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                 player_turn_results.extend(player.inventory.use(item, entities=entities, fov_map=fov_map))
             elif game_state == GameStates.DROP_INVENTORY:
                 player_turn_results.extend(player.inventory.drop_item(item))
-        
+                
+        if drop_inventory:
+            previous_game_state = game_state
+            game_state = GameStates.DROP_INVENTORY
+            
         # Handling targeting
         if game_state == GameStates.TARGETING:
             if left_click:
@@ -184,11 +189,20 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
                 item_use_results = player.inventory.use(targeting_item, entities=entities, fov_map=fov_map, target_x=target_x, target_y=target_y)
                 player_turn_results.extend(item_use_results)
             elif right_click:
-                player_turn_results.append({'targeting_cancelled': True})
+                player_turn_results.append({'targeting_cancelled': True})    
         
-        if drop_inventory:
-            previous_game_state = game_state
-            game_state = GameStates.DROP_INVENTORY
+        # Handling stairs
+        if take_stairs and game_state == GameStates.PLAYERS_TURN:
+            for entity in entities:
+                if entity.stairs and entity.x == player.x and entity.y == player.y:
+                    entities = game_map.next_floor(player, constants, message_log)
+                    fov_map = initialize_fov(game_map)
+                    fov_recompute = True
+                    libtcod.console_clear(con)
+                    break
+            else:
+                message_log.add_message(Message('There are no stairs here.', libtcod.yellow))
+                    
             
         # Handling player turn results
         for result in player_turn_results:

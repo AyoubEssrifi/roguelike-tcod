@@ -68,8 +68,6 @@ def get_constants():
         'fov_algorithm': fov_algorithm,
         'fov_light_walls': fov_light_walls,
         'fov_radius': fov_radius,
-        'max_monsters_per_room': max_monsters_per_room,
-        'max_items_per_room': max_items_per_room,
         'colors': colors
     }
     
@@ -77,7 +75,7 @@ def get_constants():
 
 def get_game_variables(constants):
     # Components
-    fighter_component = Fighter(hp=30, defense=2, power=5)
+    fighter_component = Fighter(hp=100, defense=2, power=5)
     inventory_component = Inventory(26)
     level_component = Level()
     
@@ -88,8 +86,7 @@ def get_game_variables(constants):
     entities = [player]
     
     game_map = GameMap(constants['map_width'], constants['map_height'])
-    game_map.make_map(constants['room_min_size'], constants['room_max_size'], constants['max_rooms'], 
-                      constants['max_monsters_per_room'], constants['max_items_per_room'], 
+    game_map.make_map(constants['room_min_size'], constants['room_max_size'], constants['max_rooms'],
                       constants['map_width'], constants['map_height'], player, entities)
     
     # Message Log init

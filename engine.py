@@ -213,12 +213,12 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
         # Handling stats increase when leveling up         
         if level_up_stat:
             if level_up_stat == "hp":
-                player.fighter.max_hp += 20
+                player.fighter.base_max_hp += 20
                 player.fighter.hp = player.fighter.max_hp
             elif level_up_stat == "str":
-                player.fighter.power += 1
+                player.fighter.base_power += 1
             elif level_up_stat == "def":
-                player.fighter.defense += 1
+                player.fighter.base_defense += 1
                 
             game_state = previous_game_state
         
@@ -235,6 +235,7 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
             item_added = result.get('item_added')
             item_consumed = result.get("consumed")
             item_dropped = result.get("item_dropped")
+            equip = result.get("equip")
             targeting = result.get("targeting")
             targeting_cancelled = result.get("targeting_cancelled")
             
@@ -271,6 +272,21 @@ def play_game(player, entities, game_map, message_log, game_state, con, panel, c
             if item_dropped:
                 entities.append(item_dropped)
                 game_map.set_entity(item_dropped.x, item_dropped.y ,item_dropped)
+                game_state = GameStates.ENEMY_TURN
+            
+            if equip:
+                equip_results = player.equipement.toggle_equip(equip)
+                
+                for equip_result in equip_results:
+                    equipped = equip_result.get("equipped")
+                    dequipped = equip_result.get("dequipped")
+                    
+                    if equipped:
+                        message_log.add_message(Message('You equipped the {0}'.format(equipped.name)))
+
+                    if dequipped:
+                        message_log.add_message(Message('You dequipped the {0}'.format(dequipped.name)))
+                
                 game_state = GameStates.ENEMY_TURN
             
             if targeting:

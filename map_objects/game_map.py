@@ -10,6 +10,8 @@ from components.fighter import Fighter
 from components.ai import BasicMonster
 from components.item import Item
 from components.stairs import Stairs
+from components.equippable import Equippable
+from equipement_slots import EquipementSlots
 from render_functions import RenderOrder
 from item_functions import heal, cast_lightning, cast_fireball, cast_confuse
 from game_messages import Message
@@ -126,10 +128,12 @@ class GameMap:
         monster_chances = {'orc': 80,
                            'troll': 20
                            }
-        item_chances = {'healing_potion': 70,
+        item_chances = {'sword': from_dungeon_level([[5, 4]], self.dungeon_level),
+                        'shield': from_dungeon_level([[15, 8]], self.dungeon_level),
+                        'healing_potion': 70,
                         'lightning_scroll': 10,
                         'fireball_scroll': 10,
-                        'confusion_scroll': 10
+                        'confusion_scroll': 10,
                         }
         
         # Placing random monsters
@@ -162,7 +166,14 @@ class GameMap:
             
             if len(self.get_entities(x, y)) == 0:
                 item_choice = random_choice_from_dict(item_chances)
-                if item_choice == 'healing_potion':
+                
+                if item_choice == 'sword':
+                    equippable_component = Equippable(EquipementSlots.MAIN_HAND, power_bonus=3)
+                    item = Entity(x, y, 'Sword', '-', libtcod.sky, equippable=equippable_component)
+                elif item_choice == 'shield':
+                    equippable_component = Equippable(EquipementSlots.OFF_HAND, defense_bonus=1)
+                    item = Entity(x, y, 'Shield', ']', libtcod.darker_orange, equippable=equippable_component)
+                elif item_choice == 'healing_potion':
                     item_component = Item(use_function=heal, amount=40)
                     item = Entity(x, y, 'Healing Potion', '!', libtcod.violet, item=item_component, render_order=RenderOrder.ITEM)
                 elif item_choice == 'fireball_scroll':

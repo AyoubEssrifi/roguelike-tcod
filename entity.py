@@ -2,6 +2,7 @@ from __future__ import annotations
 import math
 import tcod as libtcod
 
+from components.item import Item
 from render_functions import RenderOrder
 
 class Entity:
@@ -10,7 +11,8 @@ class Entity:
     """
     def __init__(self, x, y, name, char, color, fighter: Fighter = None, ai: BasicMonster = None, 
                  item: Item = None, inventory: Inventory = None, stairs: Stairs = None,
-                 level: Level = None, render_order: RenderOrder = RenderOrder.CORPSE):
+                 level: Level = None, equipement: Equipement = None, equippable: Equippable = None, 
+                 render_order: RenderOrder = RenderOrder.CORPSE):
         self.x = x
         self.y = y
         self.name = name
@@ -22,6 +24,8 @@ class Entity:
         self.inventory = inventory
         self.stairs = stairs
         self.level = level
+        self.equipement = equipement
+        self.equippable = equippable
         self.render_order = render_order
         
         if self.fighter:
@@ -41,6 +45,17 @@ class Entity:
             
         if self.level:
             self.level.owner = self
+        
+        if self.equipement:
+            self.equipement.owner = self
+        
+        if self.equippable:
+            self.equippable.owner = self
+            
+            if not self.item:
+                item = Item()
+                self.item = item
+                self.item.owner = self
         
 
     def move(self, dx, dy, game_map):

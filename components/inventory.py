@@ -47,13 +47,21 @@ class Inventory:
                 results.extend(item_use_results)
             
         else:
-            results.append({'message': Message('The {0} cannot be used.'.format(item_entity.name))})
+            equippable_component = item_entity.equippable
+            
+            if equippable_component:
+                results.append({'equip': item_entity})
+            else:
+                results.append({'message': Message('The {0} cannot be used.'.format(item_entity.name))})
         
         return results
     
     def drop_item(self, item: Entity):
         results = []
         
+        if self.owner.equipement.main_hand == item or self.owner.eqipement.off_hand == item:
+            self.owner.equipement.toggle_equip(item)
+            
         item.x = self.owner.x
         item.y = self.owner.y
         
